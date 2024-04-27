@@ -78,6 +78,12 @@ func ComplianceMustVerify(e error, details string) *HTTPResponse {
 	return httpErr
 }
 
+func FileDoesNotExists(e error, details string) *HTTPResponse {
+	httpErr := HTTPErrorInstance(e, StatusCodeBadRequestError, InternalStatusCodeComplianceMustCheck)
+	httpErr.details = details
+	return httpErr
+}
+
 // Funcion auxiliar para obtener el archivo y linea donde fue creado un error
 func runtimeToString() string {
 	_, file, line, ok := runtime.Caller(2)
