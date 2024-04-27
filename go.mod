@@ -1,4 +1,4 @@
-module github.com/MarcoPavez/go-libraries/responser
+module github.com/MarcoPavez/go-libraries
 
 go 1.21.0
 
