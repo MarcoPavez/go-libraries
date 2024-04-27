@@ -1,4 +1,4 @@
-module github.com/MarcoPavez/go-libraries
+module github.com/mpavez0/go-libraries
 
 go 1.21.0
 
