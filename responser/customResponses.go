@@ -3,36 +3,29 @@ package responser
 import (
 	"errors"
 	"fmt"
-	"net/http"
 
 	"github.com/go-playground/validator/v10"
 )
 
+func CustomResponseSetter([]func(name string, response func(error, int, ...map[string]interface{}) *response)) {
+	Set("UnexpectedError", unexpectedError)
+	Set("ConnectionError", connectionError)
+	Set("DataValidationError", dataValidationError)
+}
+
 func unexpectedError(err error, status int, args ...map[string]interface{}) *response {
 	httpErr := newResponse(err, status)
-	httpErr.optionals = args
 	httpErr.details = "Ha ocurrido un error inesperado"
+	httpErr.optionals = args
+	return httpErr
+}
+func connectionError(err error, status int, args ...map[string]interface{}) *response {
+	httpErr := newResponse(err, status)
+	httpErr.details = "El componente %s no puede establecer una conexión a la base de datos"
 	return httpErr
 }
 
-func CustomResponseSetter() {
-	Set("UnexpectedError", unexpectedError)
-	Get("UnexpectedError", errors.New("Lol"), http.StatusOK)
-}
-
-func ConnectionError(err error, component string) *response {
-	httpErr := newResponse(err, http.StatusInternalServerError)
-	httpErr.details = fmt.Sprintf("El componente %s no puede establecer una conexión a la base de datos", component)
-	return httpErr
-}
-
-func InvalidInputJson(err error, details string) *response {
-	httpErr := newResponse(err, http.StatusBadRequest)
-	httpErr.details = details
-	return httpErr
-}
-
-func DataValidationError(err error) *response {
+func dataValidationError(err error, status int, args ...map[string]interface{}) *response {
 	var ve validator.ValidationErrors
 	var customMessage string
 
@@ -45,7 +38,7 @@ func DataValidationError(err error) *response {
 	}
 
 	validationError := errors.New("Error durante la validación de datos de entrada")
-	httpErr := newResponse(validationError, http.StatusBadRequest)
+	httpErr := newResponse(validationError, status)
 	httpErr.details = customMessage
 	return httpErr
 }
