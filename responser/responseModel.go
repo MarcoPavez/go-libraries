@@ -4,39 +4,40 @@ import (
 	"fmt"
 )
 
-type CustomResponseCreator interface {
+type ResponseCreator interface {
 	Error() string
 	GetStatusCode() int
 	GetResponseMessage() string
 }
 
-type HTTPResponse struct {
+type response struct {
 	cause      error
 	details    string
 	statusCode int
 	location   string
+	optionals  []map[string]interface{}
 }
 
-func NewHttpResponse(e error, httpStatusCode int) *HTTPResponse {
-	return &HTTPResponse{
+func newResponse(e error, httpStatusCode int) *response {
+	return &response{
 		cause:      e,
 		statusCode: httpStatusCode,
 		location:   runtimeToString(),
 	}
 }
 
-func (err HTTPResponse) Error() string {
+func (err response) Error() string {
 	if err.cause == nil {
 		return err.details
 	}
 	return fmt.Sprintf("%s %s", err.location, err.cause.Error())
 }
 
-func (err HTTPResponse) GetStatusCode() int {
+func (err response) GetStatusCode() int {
 	return err.statusCode
 }
 
-func (err HTTPResponse) GetResponseMessage() string {
+func (err response) GetResponseMessage() string {
 	if err.details == "" {
 		return err.cause.Error()
 	}
